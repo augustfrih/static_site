@@ -35,7 +35,7 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
 
     return new_nodes
 
-#function that takes raw markdown, splits out images and returns it all as TextNodes
+# function that takes raw markdown, splits out images and returns it all as TextNodes
 def split_nodes_images(old_nodes):
 
     new_nodes = []
@@ -47,22 +47,59 @@ def split_nodes_images(old_nodes):
             continue
 
         text = node.text
-        images = dict(extract_markdown_images(text))
+        images = extract_markdown_images(text)
         if not images:
             new_nodes.append(node)
             continue
 
-        split_text = []
-        for image in images:
-            tmp = text.split(f"![{image}]({images[image]})", 1)
-            
+
+        for alt_text, url in images:
 
 
-
+            tmp = text.split(f"![{alt_text}]({url})", 1)
+            if not tmp[0].isspace() and tmp[0] != "":
+                new_nodes.append(TextNode(content=tmp[0], text_type=TextType.TEXT))
+            new_nodes.append(TextNode(content=alt_text, text_type=TextType.IMAGE, url=url))
+            if len(tmp) == 2:
+                text = tmp[1]
+        
+        if text != "" and not text.isspace():
+            new_nodes.append(TextNode(content=text, text_type=TextType.TEXT))
 
     return new_nodes
 
-                
+# function that takes raw markdown, splits out images and returns it all as TextNodes
+def split_nodes_link(old_nodes):
+
+    new_nodes = []
+
+    for node in old_nodes:
+        # check that the node is text type, else append it to list and continue
+        if node.text_type != TextType.TEXT:
+            new_nodes.append(node)
+            continue
+
+        text = node.text
+        links = extract_markdown_links(text)
+        if not links:
+            new_nodes.append(node)
+            continue
+
+
+        for anchor_text, url in links:
+
+
+            tmp = text.split(f"[{anchor_text}]({url})", 1)
+            if not tmp[0].isspace() and tmp[0] != "":
+                new_nodes.append(TextNode(content=tmp[0], text_type=TextType.TEXT))
+            new_nodes.append(TextNode(content=anchor_text, text_type=TextType.LINK , url=url))
+            if len(tmp) == 2:
+                text = tmp[1]
+        
+        if text != "" and not text.isspace():
+            new_nodes.append(TextNode(content=text, text_type=TextType.TEXT))
+
+    return new_nodes
 
 
 def extract_markdown_images(text):
