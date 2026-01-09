@@ -1,5 +1,9 @@
 
 
+from enum import Enum
+import re
+
+
 class BlockType(Enum):
     PARAGRAPH = "paragraph"
     HEADING = "heading"
@@ -18,6 +22,8 @@ def markdown_to_blocks(markdown):
     return new_blocks 
 
 def block_to_block_type(block):
+    block = block.strip()
+
     if block.startswith("#"):
         max = 6
         if len(block) < max:
@@ -29,29 +35,29 @@ def block_to_block_type(block):
                 return BlockType.PARAGRAPH
         return BlockType.PARAGRAPH
 
-    if block.startswith("´´´\n") and block.endswith("´´´"):
+    if block.startswith("```\n") and block.endswith("```"):
         return BlockType.CODE
 
     if block.startswith("> "):
-        for i in range(len(block) - 2):
-            if block[i] == "\n":
-                if block[i + 1] != ">" or block[i + 2] != " ":
-                    return BlockType.PARAGRAPH
+        newlines = block.split("\n")
+        for line in newlines:
+            if not line.startswith("> "):
+                return BlockType.PARAGRAPH
         return BlockType.QUOTE
 
     if block.startswith("- "):
-        for i in range(len(block) - 2):
-            if block[i] == "\n":
-                if block[i + 1] != "-" or block[i + 2] != " ":
-                    return BlockType.PARAGRAPH
+        newlines = block.split("\n")
+        for line in newlines:
+            if not line.startswith("- "):
+                return BlockType.PARAGRAPH
         return BlockType.UNORDERED_LIST
 
 
     if block.startswith("1. "):
-        number = 1
-        for i in range(len(block) - 3):
-            if block[i] == "\n":
-                if block[i + 1] != number or block[i + 2] != "." or block[i + 3] != " ":
-                    return BlockType.PARAGRAPH
-                number += 1
-        return BlockType.UNORDERED_LIST
+        newlines = block.split("\n")
+        for i in range(2, len(newlines) + 1):
+            if not newlines[i - 1].startswith(f"{i}. "):
+                return BlockType.PARAGRAPH
+        return BlockType.ORDERED_LIST
+
+    return BlockType.PARAGRAPH
