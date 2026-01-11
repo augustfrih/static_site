@@ -117,4 +117,3 @@ this is not another list item
 """
         self.assertEqual(BlockType.QUOTE , block_to_block_type(block))
         
-

@@ -1,7 +1,6 @@
 
 
 from enum import Enum
-import re
 
 
 class BlockType(Enum):
@@ -25,10 +24,12 @@ def block_to_block_type(block):
     block = block.strip()
 
     if block.startswith("#"):
-        max = 6
-        if len(block) < max:
-            max = len(block)
-        for i in range(max):
+        if len(block) < 6:
+            top = len(block)
+        else:
+            top = 6
+
+        for i in range(top):
             if block[i] == " ":
                 return BlockType.HEADING
             if block[i] != "#":

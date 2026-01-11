@@ -45,6 +45,7 @@ class LeafNode(HTMLNode):
 
         # turn the string, tag and eventual props into html a html-string and return it
         html_string = f"<{self.tag}"
+
         if self.props:
             for prop in self.props:
                 html_string +=(f' {prop}="{self.props[prop]}"')
@@ -68,6 +69,3 @@ class ParentNode(HTMLNode):
             children_html += child.to_html()
 
         return f"<{self.tag}{self.props_to_html()}>{children_html}</{self.tag}>"
-
-
-
