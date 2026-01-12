@@ -1,16 +1,25 @@
-from block_markdown import markdown_to_blocks
+from block_markdown import BlockType, block_to_block_type, markdown_to_blocks
 from htmlnode import LeafNode, ParentNode
 from inline_markdown import text_to_textnodes
-from textnode import TextNode, text_node_to_html_node
+from textnode import TextNode, TextType, text_node_to_html_node
 
 
 def main():
     text = TextNode("This is some anchor text", "link", "http://www.boot.dev")
     print(text)
 
+def copy_contents():
+    # TODO delete all contents of public dir
+
+    # TODO copy all files and subdirectories from static to public
+
+
+
 def markdown_to_html_node(markdown):
     # split markdowns into blocks
     blocks = markdown_to_blocks(markdown)
+    
+    html_blocks = []
 
     # iterate through the blocks
     for block in blocks:
@@ -21,52 +30,85 @@ def markdown_to_html_node(markdown):
         # create a new HTMLNode based on the block
         match block_type:
             case BlockType.PARAGRAPH:
-                nodes = text_to_textnodes(text)
-                pass
+                paragraph = block_to_paragraph(block)
+                children = text_to_children(paragraph)
+                parentnode = ParentNode(tag="p", children=children)
             case BlockType.HEADING:
-                # TODO implement
-                pass
+                h_num = 6
+                for i in range(6):
+                    if block[i] != "#":
+                        h_num = i
+                        break
+                cleaned_block = block[h_num:].strip()
+                children = text_to_children(cleaned_block)
+                parentnode = ParentNode(tag=f"h{h_num}", children=children)
             case BlockType.ORDERED_LIST:
-                # TODO implement
-                pass
+                lines = clean_up_list_block(block)
+                list_items = []
+                for line in lines:
+                    children = text_to_children(line)
+                    li = ParentNode(tag=f"li", children=children)
+                    list_items.append(li)
+                parentnode = ParentNode(tag="ol", children=list_items)
             case BlockType.UNORDERED_LIST:
-                # TODO implement
-                pass
+                lines = clean_up_list_block(block)
+                list_items = []
+                for line in lines:
+                    children = text_to_children(line)
+                    li = ParentNode(tag=f"li", children=children)
+                    list_items.append(li)
+                parentnode = ParentNode(tag="ul", children=list_items)
             case BlockType.QUOTE:
-                # TODO implement
-                pass
+                quote = clean_up_quote_block(block)
+                children = text_to_children(quote)
+                parentnode = ParentNode(tag="blockquote", children=children)
             case BlockType.CODE:
-                # TODO implement
-                pass
-            case _:
-                raise Exception("not a valid blocktype")
+                content = clean_up_code_block(block)
+                textnode = TextNode(content=content, text_type=TextType.CODE)
+                parentnode = ParentNode(tag="pre", children=[text_node_to_html_node(textnode)])
 
+        html_blocks.append(parentnode)
 
-        # TODO: Assign the proper child HTMLNode objects to the block node. I created a shared text_to_children(text) 
-        # function that works for all block types. It takes a string of text and returns a list of HTMLNodes that 
-        # represent the inline markdown using previously created functions (think TextNode -> HTMLNode).
-
-
-        # TODO: The "code" block is a bit of a special case: it should not do any inline markdown parsing of its children. 
-        # I didn't use my text_to_children function for this block type, I manually made a TextNode and used text_node_to_html_node.
-
-    # TODO: make make all the block nodes under a single parent htmlnode which should just be div node and return it
+    return ParentNode(tag="div", children=html_blocks)
 
 
 def text_to_children(text):
     # create a list of htmlnodes
-    nodes = text_to_htmlnodes(text)
-
-
-    
-    return ParentNode(TODO)
-
-def text_to_htmlnodes(text):
     nodes = text_to_textnodes(text)
-    html_nodes = []
+    children = []
     for node in nodes:
-        html_nodes.append(text_node_to_html_node(node))
-    return html_nodes
+        children.append(text_node_to_html_node(node))
+    
+    return children
+
+def block_to_paragraph(block):
+    lines = block.split("\n")
+    stripped_lines = [line.strip() for line in lines]
+    paragraph = " ".join(stripped_lines)
+    return paragraph
+
+def clean_up_code_block(block):
+    lines = block.split("\n")
+    middle = lines[1:-1]
+    paragraph = "\n".join(middle) + "\n"
+    return paragraph
+
+def clean_up_list_block(block):
+    lines = block.split("\n")
+    cleaned_lines = []
+    for line in lines:
+        cleaned_line = line.split(" ", 1)
+        if len(cleaned_line) == 2:
+            cleaned_lines.append(cleaned_line[1])
+    return cleaned_lines
+
+def clean_up_quote_block(block):
+    lines = block.split("\n")
+    cleaned_lines = []
+    for line in lines:
+        cleaned_lines.append(line[1:].lstrip)
+    return " ".join(cleaned_lines)
+        
 
 if __name__ == "__main__":
     main()
