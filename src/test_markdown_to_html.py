@@ -4,7 +4,7 @@
 import unittest
 
 from htmlnode import LeafNode, ParentNode
-from main import markdown_to_html_node, text_to_children
+from block_markdown import markdown_to_html_node, text_to_children
 from textnode import TextNode
 
 class TestMarkdownToHTML(unittest.TestCase):
