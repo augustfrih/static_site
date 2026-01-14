@@ -43,13 +43,18 @@ class LeafNode(HTMLNode):
         if self.tag == None:
             return f"{self.value}"
 
+
         # turn the string, tag and eventual props into html a html-string and return it
         html_string = f"<{self.tag}"
 
         if self.props:
             for prop in self.props:
                 html_string +=(f' {prop}="{self.props[prop]}"')
+        if self.tag == "img":
+            html_string += (f"{self.value}>")
+            return html_string
         html_string += (f">{self.value}</{self.tag}>")
+
         return html_string
     
 class ParentNode(HTMLNode):

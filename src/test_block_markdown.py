@@ -1,5 +1,5 @@
 import unittest 
-from block_markdown import BlockType, block_to_block_type, markdown_to_blocks
+from block_markdown import BlockType, block_to_block_type, extract_title, markdown_to_blocks
 
 class TestMarkdownBlocks(unittest.TestCase):
 
@@ -117,3 +117,39 @@ this is not another list item
 """
         self.assertEqual(BlockType.QUOTE , block_to_block_type(block))
         
+
+    def test_extract_title(self):
+        md = """
+This is **bolded** paragraph
+
+
+
+This is another paragraph with _italic_ text and `code` here
+This is the same paragraph on a new line
+
+# title
+
+- This is a list
+- with items
+
+"""
+        self.assertEqual(extract_title(md), "title")
+
+    def test_extract_title(self):
+        md = """
+This is **bolded** paragraph
+
+
+
+This is another paragraph with _italic_ text and `code` here
+This is the same paragraph on a new line
+
+## title
+
+- This is a list
+- with items
+
+"""
+        with self.assertRaises(Exception):
+            extract_title(md), "title"
+

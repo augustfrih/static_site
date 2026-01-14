@@ -43,10 +43,10 @@ def block_to_block_type(block):
     if block.startswith("```\n") and block.endswith("```"):
         return BlockType.CODE
 
-    if block.startswith("> "):
+    if block.startswith(">"):
         newlines = block.split("\n")
         for line in newlines:
-            if not line.startswith("> "):
+            if not line.startswith(">"):
                 return BlockType.PARAGRAPH
         return BlockType.QUOTE
 
@@ -158,16 +158,18 @@ def clean_up_quote_block(block):
     lines = block.split("\n")
     cleaned_lines = []
     for line in lines:
-        cleaned_lines.append(line[1:].lstrip)
+        cleaned_lines.append(line[1:].lstrip())
     return " ".join(cleaned_lines)
 
 def extract_title(markdown):
-    lines = markdown.split("\n")
-    for line in lines:
-        if line.startswith("# "):
-            parts = line.split(" ", 1)
-            if len(parts) == 2:
-                heading = parts[1].strip
-                return heading
+    blocks = markdown_to_blocks(markdown)
+
+    for block in blocks:
+        if block_to_block_type(block) == BlockType.HEADING:
+            if block.startswith("# "):
+                parts = block.split(" ", 1)
+                if len(parts) == 2:
+                    heading = parts[1]
+                    return heading
     
-    raise Exception("No heading found")
+    raise Exception("no heading found")
