@@ -25,8 +25,11 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
 
         # iterate through the text parts and append it to new_nodes
         for text_part in split_text:
-            # if text_part.isspace(): //uncomment this if you dont want nodes that are only whitespace
-            #     continue
+            if text_part == "":
+                continue
+
+                # if text_part.isspace(): //uncomment this if you dont want nodes that are only whitespace
+                #     continue
             if new_text_type:
                 new_nodes.append(TextNode(content=text_part, text_type=text_type))
             else:

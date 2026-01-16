@@ -10,11 +10,11 @@ def generate_page(from_path, template_path, dest_path):
     print(f"generating page from {from_path} to {dest_path} using {template_path}")
 
     with open(from_abs) as f:
-        print("opening and reading {from_path}")
+        print(f"opening and reading {from_path}")
         markdown = f.read()
 
     with open(template_abs) as f:
-        print("opening and reading {template_path}")
+        print(f"opening and reading {template_path}")
         template = f.read()
 
     html_node = markdown_to_html_node(markdown)
@@ -32,3 +32,13 @@ def generate_page(from_path, template_path, dest_path):
     with open(dest_abs, "w") as f:
         _ = f.write(template)
 
+def generate_files_recursively(from_path, template_path):
+    for path in os.listdir(from_path):
+        path = os.path.join(from_path, path)
+        from_new = path
+        dest_new = path.replace("/content", "/public")
+        dest_new = dest_new.replace(".md", ".html")
+        if os.path.isdir(path):
+            generate_files_recursively(from_new, template_path)
+        elif path.endswith(".md"):
+            generate_page(from_new, template_path, dest_new)

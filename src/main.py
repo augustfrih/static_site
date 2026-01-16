@@ -1,7 +1,7 @@
 import os
 import shutil
 from copystatic import copy_contents
-from generate_page import generate_page
+from generate_page import generate_files_recursively  
 
 dir_path_static = "./static"
 dir_path_public = "./public"
@@ -14,8 +14,9 @@ def main():
 
     print("copying static files to public directory...")
     copy_contents(dir_path_static, dir_path_public)
+    
+    generate_files_recursively("./content", "./template.html")
 
-    generate_page(from_path="./content/index.md", template_path="./template.html", dest_path="./public/index.html")
 
 # Update main.py: after copying files from static to public, it should generate a page from content/index.md using template.html and write it to public/index.html.
 if __name__ == "__main__":
